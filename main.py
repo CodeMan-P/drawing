@@ -5,6 +5,9 @@ import numpy as np
 
 import math
 from painter import Painter
+
+from PIL import Image, ImageDraw, ImageFont
+
 width = 600
 r= 200
 center = (int(width/2),int(width/2))
@@ -16,9 +19,47 @@ def getCirclePoints():
         points.append((int(x),int(y)))
     return points
     
+def creatImg(s,width=400):
+    mask = np.full((width,width,3),255,np.uint8)
+    pilimg = Image.fromarray(mask)
+    draw = ImageDraw.Draw(pilimg) # 图片上打印
+    fontSize = 50
+    while 1:
+        font = ImageFont.truetype("simkai.ttf", fontSize, encoding="utf-8") # 参数1：字体文件路径，参数2：字体大小
+        w, h = draw.textsize(s, font=font)
+        if max(w,h)<width:
+            fontSize+=1
+        else:
+            fontSize-=1
+            break
+    font = ImageFont.truetype("simkai.ttf", fontSize, encoding="utf-8") # 参数1：字体文件路径，参数2：字体大小
+    w, h = draw.textsize(s, font=font)
+    w = max(w,h)
+    draw.text((width/2 -w/2, width/2 -w/2), s, (0, 0, 0), font=font)
+    mask=np.array(pilimg)
+    cv.imwrite('tmp.jpg',mask);
+    return 'tmp.jpg'
+def toPng(s,radius = 500):
+    img = cv.imread(s, cv.IMREAD_UNCHANGED) 
     
+    tmpFrame = np.full((img.shape[0],img.shape[1],4),0,np.uint8)
+    tmpFrame[:,:,0]=img[:,:]
+    tmpFrame[:,:,1]=img[:,:]
+    tmpFrame[:,:,2]=img[:,:]
+    
+    mask = np.full((img.shape[0],img.shape[1]),0,np.uint8)
+    cv.circle(mask, (radius,radius), radius, (255,255,255), -1)
+    tmpFrame[:,:,3]=mask
+
+    cv.imwrite(s+'.png', tmpFrame, [int(cv.IMWRITE_PNG_COMPRESSION), 3])
 def main():
-    p = Painter('1.png',400,1)
+    toPng("ret.jpg")
+    s = "裴"
+    s = creatImg(s,600)
+    
+    #mask = cv.putText(mask, s, (50, 50), cv.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 2)
+    p = Painter(s,500,1)
+    #p = Painter('1.png',400,1)
 
     #p = Painter('2.jpg',200,1)
     # img=np.full((width,width,3),0,np.uint8)
