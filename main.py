@@ -42,18 +42,26 @@ def creatImg(s,width=400):
 def toPng(s,radius = 500):
     img = cv.imread(s, cv.IMREAD_UNCHANGED) 
     
-    tmpFrame = np.full((img.shape[0],img.shape[1],4),0,np.uint8)
-    tmpFrame[:,:,0]=img[:,:]
-    tmpFrame[:,:,1]=img[:,:]
-    tmpFrame[:,:,2]=img[:,:]
+    tmpFrame = np.full((img.shape[0]+100,img.shape[1]+100,4),255,np.uint8)
+    mask = np.full((img.shape[0]+100,img.shape[1]+100,1),255,np.uint8)
+    #cv.copyTo(img,mask[50:img.shape[0],50:img.shape[0]],tmpFrame[50:img.shape[0],50:img.shape[0]])
+
+    tmpFrame[50:img.shape[0]+50,50:img.shape[1]+50,0]=img[:,:,0]
+    tmpFrame[50:img.shape[0]+50,50:img.shape[1]+50,1]=img[:,:,1]
+    tmpFrame[50:img.shape[0]+50,50:img.shape[1]+50,2]=img[:,:,2]
     
-    mask = np.full((img.shape[0],img.shape[1]),0,np.uint8)
-    cv.circle(mask, (radius,radius), radius, (255,255,255), -1)
-    tmpFrame[:,:,3]=mask
+    mask[mask>0] = 0
+    cv.circle(mask, (radius+50,radius+50), radius+5, (255,255,255), -1)
+    tmpFrame[:,:,3]=mask[:,:,0]
 
     cv.imwrite(s+'.png', tmpFrame, [int(cv.IMWRITE_PNG_COMPRESSION), 3])
+def resizePng(s,w,h):
+    img = cv.imread(s, cv.IMREAD_UNCHANGED) 
+    img= cv.resize(img,(w,h))
+    cv.imwrite(s+'.png', img, [int(cv.IMWRITE_PNG_COMPRESSION), 3])
 def main():
-    toPng("ret.jpg")
+    #resizePng('ignore/1.png',500,500)
+    toPng('ignore/1.png')
     s = "裴"
     s = creatImg(s,600)
     
